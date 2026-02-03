@@ -236,19 +236,7 @@ const CreateCase = () => {
                                     </button>
                                 )}
 
-                                {/* Show which model processed the text and the raw output (if available) */}
-                                {aiModel && (
-                                    <div style={{ marginTop: '0.75rem' }}>
-                                        <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>AI Model</label>
-                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
-                                            <input type="text" readOnly value={aiModel} style={{ padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }} />
-                                            <details style={{ fontSize: '0.85rem' }}>
-                                                <summary style={{ cursor: 'pointer' }}>View AI raw response</summary>
-                                                <pre style={{ whiteSpace: 'pre-wrap', maxHeight: '200px', overflow: 'auto', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '0.5rem', marginTop: '0.5rem' }}>{aiRaw}</pre>
-                                            </details>
-                                        </div>
-                                    </div>
-                                )}
+
                             </div>
                         </div>
 
