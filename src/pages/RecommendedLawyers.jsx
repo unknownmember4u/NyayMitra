@@ -6,6 +6,7 @@ import { getRecommendedLawyers } from '../utils/aiLogic';
 import { Star, Award, MapPin, Briefcase, Zap, CheckCircle, MessageSquare } from 'lucide-react';
 import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
+import { sendAssignmentEmail } from '../utils/emailService';
 
 const RecommendedLawyers = () => {
     const { currentUser } = useAuth();
@@ -15,6 +16,7 @@ const RecommendedLawyers = () => {
     const navigate = useNavigate();
 
     const [lawyers, setLawyers] = useState([]);
+    const [caseData, setCaseData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [assigning, setAssigning] = useState(null);
     const [initiatingChat, setInitiatingChat] = useState(null);
@@ -22,9 +24,15 @@ const RecommendedLawyers = () => {
     useEffect(() => {
         const fetchAndRecommend = async () => {
             try {
+                // Fetch All Lawyers
                 const allLawyers = await lawyerService.getAllLawyers();
                 const recommendations = getRecommendedLawyers(allLawyers, category || 'civil');
                 setLawyers(recommendations);
+
+                // Fetch current case data for email details
+                const cases = await caseService.getUserCases(currentUser.uid);
+                const currentCase = cases.find(c => c.id === caseId);
+                setCaseData(currentCase);
             } catch (error) {
                 console.error("Error recommending lawyers:", error);
             } finally {
@@ -33,13 +41,30 @@ const RecommendedLawyers = () => {
         };
 
         fetchAndRecommend();
-    }, [category]);
+    }, [category, caseId, currentUser.uid]);
 
     const handleAssign = async (lawyerId) => {
         setAssigning(lawyerId);
         try {
+            // 1. Assign in Database
             await caseService.assignLawyer(caseId, lawyerId);
-            alert("Lawyer assigned successfully!");
+
+            // 2. Send Email Notification
+            const lawyer = lawyers.find(l => l.id === lawyerId);
+            if (lawyer && lawyer.email && caseData) {
+                await sendAssignmentEmail({
+                    lawyerEmail: lawyer.email,
+                    clientName: currentUser.name || "A Client",
+                    clientEmail: currentUser.email || "",
+                    caseCategory: category,
+                    caseUrgency: caseData.urgency || "medium",
+                    caseStatus: "active",
+                    createdAt: caseData.createdAt?.toDate().toLocaleString() || new Date().toLocaleString(),
+                    caseDescription: caseData.description
+                });
+            }
+
+            alert("Lawyer assigned successfully! They have been notified via email.");
             navigate('/dashboard');
         } catch (error) {
             console.error("Error assigning lawyer:", error);
