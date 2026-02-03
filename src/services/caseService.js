@@ -121,5 +121,44 @@ export const caseService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    // Submit rating for a case and update lawyer trust score based on all their cases
+    rateCase: async (caseId, lawyerId, rating) => {
+        try {
+            // 1. Update the specific Case with client's rating
+            const caseRef = doc(db, "cases", caseId);
+            await updateDoc(caseRef, { rating });
+
+            // 2. Fetch all rated cases for this lawyer to calculate actual average
+            const q = query(
+                collection(db, "cases"),
+                where("lawyer", "==", lawyerId)
+            );
+            const querySnapshot = await getDocs(q);
+
+            let totalRating = 0;
+            let ratedCasesCount = 0;
+
+            querySnapshot.forEach((doc) => {
+                const caseData = doc.data();
+                if (caseData.rating) {
+                    totalRating += caseData.rating;
+                    ratedCasesCount++;
+                }
+            });
+
+            // 3. Update Lawyer's trustScore with the new collective mean
+            if (ratedCasesCount > 0) {
+                const lawyerRef = doc(db, "lawyers", lawyerId);
+                const averageScore = totalRating / ratedCasesCount;
+
+                await updateDoc(lawyerRef, {
+                    trustScore: parseFloat(averageScore.toFixed(2))
+                });
+            }
+        } catch (error) {
+            throw error;
+        }
     }
 };

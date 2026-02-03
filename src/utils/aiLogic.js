@@ -25,24 +25,27 @@ export const getRecommendedLawyers = (lawyers, category, location = null) => {
     // 2. Rank using the formula
     const scoredLawyers = matchingLawyers.map(lawyer => {
         const winRate = lawyer.totalCases > 0 ? (lawyer.winCases / lawyer.totalCases) : 0;
-        let score = (winRate * 50) + (lawyer.rating * 10) + (lawyer.experienceYears * 2);
+        const trustVal = lawyer.trustScore !== undefined ? lawyer.trustScore : lawyer.rating;
+
+        // Trust Score and Win Rate are the most important factors
+        let score = (winRate * 40) + (trustVal * 40) + (lawyer.experienceYears * 2);
 
         // Location priority: Add bonus if location matches
         let isLocal = false;
         if (location && location !== "None" && lawyer.city.toLowerCase() === location.toLowerCase()) {
-            score += 30; // Significant bonus for being in the same city
+            score += 20; // Bonus for proximity
             isLocal = true;
         }
 
         // Explanation for the UI
         let reason = "";
         if (isLocal) reason = `Expert in ${location} for ${category} matters`;
+        else if (trustVal > 4.5) reason = "Exceptionally high client trust";
         else if (winRate > 0.8) reason = "Highly successful track record";
         else if (lawyer.experienceYears > 15) reason = "Extensive industry experience";
-        else if (lawyer.rating > 4.5) reason = "Top rated by clients";
         else reason = "Consistent performance in this field";
 
-        return { ...lawyer, score, reason };
+        return { ...lawyer, score: parseFloat(score.toFixed(1)), reason };
     });
 
     // Sort by score descending and return top 3

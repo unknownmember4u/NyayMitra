@@ -36,6 +36,8 @@ const CaseDetails = () => {
     const [caseData, setCaseData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [ratingLoading, setRatingLoading] = useState(false);
 
     useEffect(() => {
         const fetchCase = async () => {
@@ -59,6 +61,34 @@ const CaseDetails = () => {
             setCaseData(prev => ({ ...prev, currentStageIndex: index }));
         } catch (err) {
             alert("Failed to update progress.");
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const handleRate = async (star) => {
+        setRatingLoading(true);
+        try {
+            await caseService.rateCase(id, caseData.lawyer, star);
+            setCaseData(prev => ({ ...prev, rating: star }));
+            alert("Thank you for your feedback! Trust Score updated.");
+        } catch (err) {
+            alert("Failed to submit rating.");
+        } finally {
+            setRatingLoading(false);
+        }
+    };
+
+    const handleStatusUpdate = async (status) => {
+        if (!window.confirm(`Are you sure you want to mark this case as ${status.toUpperCase()}?`)) return;
+        setUpdating(true);
+        try {
+            await caseService.updateCaseStatus(id, status);
+            await caseService.updateLawyerStats(currentUser.uid, status === 'won');
+            setCaseData(prev => ({ ...prev, status }));
+            alert(`Case marked as ${status}!`);
+        } catch (err) {
+            alert("Failed to update status.");
         } finally {
             setUpdating(false);
         }
@@ -100,6 +130,45 @@ const CaseDetails = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* Trust Rating Section */}
+                    {!isLawyer && (caseData.status === 'won' || caseData.status === 'closed' || caseData.status === 'lost') && (
+                        <div className="card m-b-2" style={{ border: '2px solid var(--primary)', background: '#fff9f9' }}>
+                            <h3 className="m-b-1">Trust Rating</h3>
+                            {caseData.rating ? (
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <Trophy size={20} color="#f59e0b" />
+                                    <span>You rated this lawyer <strong>{caseData.rating}/5</strong>. This contributes to their overall Trust Score.</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <p className="text-muted m-b-2">How was your experience? Your rating helps update the lawyer's <strong>Trust Score</strong>.</p>
+                                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '2rem', justifyContent: 'center' }}>
+                                        {[1, 2, 3, 4, 5].map(star => (
+                                            <button
+                                                key={star}
+                                                onClick={() => handleRate(star)}
+                                                disabled={ratingLoading}
+                                                style={{
+                                                    background: 'none',
+                                                    color: star <= (rating || 0) ? '#f59e0b' : '#d1d5db',
+                                                    cursor: 'pointer',
+                                                    transition: 'transform 0.2s'
+                                                }}
+                                                onMouseEnter={() => setRating(star)}
+                                                onMouseLeave={() => setRating(0)}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p style={{ textAlign: 'center', fontSize: '0.75rem', marginTop: '1rem', color: 'var(--text-muted)' }}>
+                                        Ratings use an exponential weighted algorithm for accuracy.
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                    )}
 
                     <div className="card">
                         <h3 className="m-b-2 flex-between">
@@ -173,6 +242,31 @@ const CaseDetails = () => {
                                 );
                             })}
                         </div>
+
+                        {/* Case Resolution for Client */}
+                        {!isLawyer && caseData.status === 'active' && (
+                            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed var(--border)' }}>
+                                <h4 className="m-b-1">Has your case reached a verdict?</h4>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button
+                                        onClick={() => handleStatusUpdate('won')}
+                                        className="btn"
+                                        style={{ flex: 1, background: 'var(--success)', color: 'white' }}
+                                        disabled={updating}
+                                    >
+                                        I Won the Case
+                                    </button>
+                                    <button
+                                        onClick={() => handleStatusUpdate('lost')}
+                                        className="btn"
+                                        style={{ flex: 1, background: 'var(--danger)', color: 'white' }}
+                                        disabled={updating}
+                                    >
+                                        I Lost the Case
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -205,10 +299,17 @@ const CaseDetails = () => {
                                 <MessageSquare size={18} />
                                 <span>Go to Conversation</span>
                             </button>
+
                             {caseData.status === 'won' && (
                                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
                                     <Trophy size={20} />
                                     <strong>Case Won Successfully!</strong>
+                                </div>
+                            )}
+                            {caseData.status === 'lost' && (
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
+                                    <AlertTriangle size={20} />
+                                    <strong>Case Closed (Lost)</strong>
                                 </div>
                             )}
                         </div>

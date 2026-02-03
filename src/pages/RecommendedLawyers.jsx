@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { lawyerService } from '../services/lawyerService';
 import { caseService } from '../services/caseService';
 import { getRecommendedLawyers } from '../utils/aiLogic';
-import { Star, Award, MapPin, Briefcase, Zap, CheckCircle, MessageSquare } from 'lucide-react';
+import { Star, Award, MapPin, Briefcase, Zap, CheckCircle, MessageSquare, ShieldCheck } from 'lucide-react';
 import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
 import { sendAssignmentEmail } from '../utils/emailService';
@@ -111,18 +111,20 @@ const RecommendedLawyers = () => {
                 <div className="grid">
                     {lawyers.map(lawyer => (
                         <div key={lawyer.id} className="card" style={{ position: 'relative', overflow: 'hidden' }}>
-                            <div style={{
+                            <div className="flex-between" style={{
                                 position: 'absolute',
                                 top: 0,
                                 right: 0,
                                 background: 'var(--primary)',
                                 color: 'white',
-                                padding: '0.25rem 0.75rem',
+                                padding: '0.35rem 0.75rem',
                                 fontSize: '0.75rem',
                                 fontWeight: 700,
-                                borderBottomLeftRadius: '0.5rem'
+                                borderBottomLeftRadius: '0.5rem',
+                                gap: '0.4rem'
                             }}>
-                                Match Score: {Math.round(lawyer.score)}
+                                <Zap size={14} fill="white" />
+                                Trust Score: {lawyer.trustScore || lawyer.rating}
                             </div>
 
                             <div className="flex-between m-b-1" style={{ justifyContent: 'flex-start', gap: '1rem' }}>
@@ -156,12 +158,16 @@ const RecommendedLawyers = () => {
                                     <span>{lawyer.experienceYears} Years Exp.</span>
                                 </div>
                                 <div className="flex-between" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
+                                    <ShieldCheck size={14} color="var(--primary)" />
+                                    <span>{lawyer.trustScore ? `${lawyer.trustScore} Trust` : 'New Lawyer'}</span>
+                                </div>
+                                <div className="flex-between" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
                                     <Star size={14} color="var(--warning)" fill="var(--warning)" />
                                     <span>{lawyer.rating} / 5.0</span>
                                 </div>
                                 <div className="flex-between" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
                                     <Award size={14} color="var(--success)" />
-                                    <span>{Math.round((lawyer.winCases / lawyer.totalCases) * 100)}% Win Rate</span>
+                                    <span>{lawyer.totalCases > 0 ? Math.round((lawyer.winCases / lawyer.totalCases) * 100) : 0}% Win Rate</span>
                                 </div>
                             </div>
 

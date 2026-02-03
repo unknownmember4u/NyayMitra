@@ -14,6 +14,7 @@ const Register = () => {
         // Lawyer specific
         specialization: 'civil',
         experienceYears: '',
+        enrollmentId: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ const Register = () => {
                     city: formData.city,
                     specialization: [formData.specialization],
                     experienceYears: parseInt(formData.experienceYears),
+                    enrollmentId: formData.enrollmentId,
                     totalCases: 0,
                     winCases: 0,
                     rating: 5.0,
@@ -137,21 +139,34 @@ const Register = () => {
                     </div>
 
                     {role === 'lawyer' && (
-                        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <>
                             <div className="input-group">
-                                <label>Specialization</label>
-                                <select name="specialization" onChange={handleChange}>
-                                    <option value="civil">Civil</option>
-                                    <option value="criminal">Criminal</option>
-                                    <option value="family">Family</option>
-                                    <option value="consumer">Consumer</option>
-                                </select>
+                                <label>Bar Council Enrollment ID</label>
+                                <input
+                                    name="enrollmentId"
+                                    type="text"
+                                    placeholder="e.g., MAH/1234/2020"
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>As assigned by Bar Council of India</small>
                             </div>
-                            <div className="input-group">
-                                <label>Experience (Years)</label>
-                                <input name="experienceYears" type="number" placeholder="5" onChange={handleChange} required />
+                            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="input-group">
+                                    <label>Specialization</label>
+                                    <select name="specialization" onChange={handleChange}>
+                                        <option value="civil">Civil</option>
+                                        <option value="criminal">Criminal</option>
+                                        <option value="family">Family</option>
+                                        <option value="consumer">Consumer</option>
+                                    </select>
+                                </div>
+                                <div className="input-group">
+                                    <label>Experience (Years)</label>
+                                    <input name="experienceYears" type="number" placeholder="5" onChange={handleChange} required />
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
 
                     <button
