@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import CreateCase from './pages/CreateCase';
 import RecommendedLawyers from './pages/RecommendedLawyers';
 import Chat from './pages/Chat';
+import CaseDetails from './pages/CaseDetails';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { currentUser, loading } = useAuth();
@@ -56,6 +57,12 @@ function App() {
               <Route path="/chat" element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/case/:id" element={
+                <ProtectedRoute>
+                  <CaseDetails />
                 </ProtectedRoute>
               } />
 

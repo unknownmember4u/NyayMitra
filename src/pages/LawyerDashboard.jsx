@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { caseService } from '../services/caseService';
-import { Briefcase, User, MapPin, AlertTriangle, MessageSquare, FileText, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Briefcase, User, MapPin, AlertTriangle, MessageSquare, FileText, X, ChevronRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { chatService } from '../services/chatService';
 
 const LawyerDashboard = () => {
@@ -83,7 +83,12 @@ const LawyerDashboard = () => {
                                 <span className={`badge badge-${item.urgency}`}>{item.urgency} Urgency</span>
                                 <span className={`badge badge-${item.status}`}>{item.status}</span>
                             </div>
-                            <h3 className="m-b-1" style={{ textTransform: 'capitalize' }}>{item.category} Case</h3>
+                            <h3 className="m-b-1 flex-between" style={{ textTransform: 'capitalize' }}>
+                                <Link to={`/case/${item.id}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}>
+                                    {item.category} Case
+                                </Link>
+                                <ChevronRight size={18} className="text-muted" />
+                            </h3>
 
                             <div style={{
                                 background: 'var(--bg)',

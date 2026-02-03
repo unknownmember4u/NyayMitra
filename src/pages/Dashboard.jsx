@@ -91,7 +91,11 @@ const UserDashboard = () => {
                                 <span className={`badge badge-${item.urgency}`}>{item.urgency} Urgency</span>
                                 <span className={`badge badge-${item.status}`}>{item.status}</span>
                             </div>
-                            <h3 className="m-b-1" style={{ textTransform: 'capitalize' }}>{item.category} Case</h3>
+                            <h3 className="m-b-1" style={{ textTransform: 'capitalize' }}>
+                                <Link to={`/case/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {item.category} Case
+                                </Link>
+                            </h3>
                             <p className="text-muted m-b-1" style={{
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,

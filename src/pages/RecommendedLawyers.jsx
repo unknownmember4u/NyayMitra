@@ -13,6 +13,7 @@ const RecommendedLawyers = () => {
     const [searchParams] = useSearchParams();
     const caseId = searchParams.get('caseId');
     const category = searchParams.get('category');
+    const location = searchParams.get('location');
     const navigate = useNavigate();
 
     const [lawyers, setLawyers] = useState([]);
@@ -26,7 +27,7 @@ const RecommendedLawyers = () => {
             try {
                 // Fetch All Lawyers
                 const allLawyers = await lawyerService.getAllLawyers();
-                const recommendations = getRecommendedLawyers(allLawyers, category || 'civil');
+                const recommendations = getRecommendedLawyers(allLawyers, category || 'civil', location);
                 setLawyers(recommendations);
 
                 // Fetch current case data for email details
@@ -41,7 +42,7 @@ const RecommendedLawyers = () => {
         };
 
         fetchAndRecommend();
-    }, [category, caseId, currentUser.uid]);
+    }, [category, caseId, location, currentUser.uid]);
 
     const handleAssign = async (lawyerId) => {
         setAssigning(lawyerId);

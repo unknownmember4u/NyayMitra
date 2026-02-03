@@ -13,8 +13,32 @@ import { db } from "./firebase";
 import { detectUrgency } from "../utils/aiLogic";
 
 export const caseService = {
+    // Get case by ID
+    getCaseById: async (caseId) => {
+        try {
+            const docRef = doc(db, "cases", caseId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                return { id: docSnap.id, ...docSnap.data() };
+            }
+            return null;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    // Update case progress
+    updateCaseProgress: async (caseId, currentStageIndex) => {
+        try {
+            const caseRef = doc(db, "cases", caseId);
+            await updateDoc(caseRef, { currentStageIndex });
+        } catch (error) {
+            throw error;
+        }
+    },
+
     // Create a new case
-    createCase: async (userId, category, description, customUrgency = null, documents = []) => {
+    createCase: async (userId, category, description, customUrgency = null, documents = [], location = null) => {
         try {
             const urgency = customUrgency || detectUrgency(description);
             const caseData = {
@@ -23,6 +47,8 @@ export const caseService = {
                 description,
                 urgency,
                 documents, // Added document support
+                currentStageIndex: 0, // Default to first stage
+                location, // Added location support
                 lawyer: null,
                 status: "open",
                 createdAt: serverTimestamp()

@@ -8,6 +8,7 @@ import { Send, AlertTriangle, Mic, Square, Loader2, Wand2, RefreshCw, ShieldChec
 const CreateCase = () => {
     const { currentUser } = useAuth();
     const [category, setCategory] = useState('civil');
+    const [location, setLocation] = useState('Nagpur');
     const [description, setDescription] = useState('');
     const [documents, setDocuments] = useState([]); // Base64 or metadata
     const [aiUrgency, setAiUrgency] = useState(null);
@@ -125,8 +126,8 @@ const CreateCase = () => {
         setLoading(true);
 
         try {
-            const newCase = await caseService.createCase(currentUser.uid, category, description, aiUrgency, documents);
-            navigate(`/recommended-lawyers?caseId=${newCase.id}&category=${category}`);
+            const newCase = await caseService.createCase(currentUser.uid, category, description, aiUrgency, documents, location);
+            navigate(`/recommended-lawyers?caseId=${newCase.id}&category=${category}&location=${location}`);
         } catch (error) {
             console.error("Error creating case:", error);
             alert("Failed to create case. Please try again.");
@@ -212,7 +213,7 @@ const CreateCase = () => {
                             </div>
                         </div>
 
-                        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                             <div className="input-group">
                                 <label>Case Category</label>
                                 <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -220,6 +221,16 @@ const CreateCase = () => {
                                     <option value="criminal">Criminal</option>
                                     <option value="family">Family</option>
                                     <option value="consumer">Consumer</option>
+                                </select>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Location</label>
+                                <select value={location} onChange={(e) => setLocation(e.target.value)}>
+                                    <option value="Nagpur">Nagpur</option>
+                                    <option value="Bhandara">Bhandara</option>
+                                    <option value="Mumbai">Mumbai</option>
+                                    <option value="None">Prefer not to say</option>
                                 </select>
                             </div>
 
