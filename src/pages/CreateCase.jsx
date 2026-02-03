@@ -12,9 +12,12 @@ const CreateCase = () => {
     const [description, setDescription] = useState('');
     const [documents, setDocuments] = useState([]); // Base64 or metadata
     const [aiUrgency, setAiUrgency] = useState(null);
+    const [aiModel, setAiModel] = useState(null);
+    const [aiRaw, setAiRaw] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // Voice States
+    const [voiceLang, setVoiceLang] = useState('mr');
     const [isRecording, setIsRecording] = useState(false);
     const [transcribing, setTranscribing] = useState(false);
     const [analyzing, setAnalyzing] = useState(false);
@@ -58,6 +61,7 @@ const CreateCase = () => {
         setTranscribing(true);
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.webm');
+        formData.append('language', voiceLang);
 
         try {
             const response = await fetch('http://localhost:5000/transcribe', {
@@ -94,6 +98,8 @@ const CreateCase = () => {
             if (data.category) setCategory(data.category);
             if (data.description) setDescription(data.description);
             if (data.urgency) setAiUrgency(data.urgency);
+            if (data.model) setAiModel(data.model);
+            if (data.raw) setAiRaw(data.raw);
         } catch (err) {
             console.error("Analysis failed", err);
             alert("AI processing failed. Please check backend and Gemini API key.");
@@ -159,6 +165,25 @@ const CreateCase = () => {
                         <h3 className="m-b-1">Record Your Voice</h3>
                         <p className="text-muted m-b-2">Tell us about your problem in your own language.</p>
 
+                        <div className="m-b-2">
+                            <label className="text-muted small">Select Recording Language:</label>
+                            <select
+                                value={voiceLang}
+                                onChange={(e) => setVoiceLang(e.target.value)}
+                                style={{
+                                    padding: '0.5rem',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid var(--border)',
+                                    marginLeft: '0.5rem',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                <option value="mr">Marathi (मराठी)</option>
+                                <option value="hi">Hindi (हिंदी)</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+
                         <div className="flex-between" style={{ justifyContent: 'center', gap: '1rem' }}>
                             {!isRecording ? (
                                 <button className="btn btn-primary" onClick={startRecording} type="button"
@@ -209,6 +234,20 @@ const CreateCase = () => {
                                     >
                                         {analyzing ? <RefreshCw className="animate-spin" size={18} /> : <Wand2 size={18} />}
                                     </button>
+                                )}
+
+                                {/* Show which model processed the text and the raw output (if available) */}
+                                {aiModel && (
+                                    <div style={{ marginTop: '0.75rem' }}>
+                                        <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>AI Model</label>
+                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                                            <input type="text" readOnly value={aiModel} style={{ padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }} />
+                                            <details style={{ fontSize: '0.85rem' }}>
+                                                <summary style={{ cursor: 'pointer' }}>View AI raw response</summary>
+                                                <pre style={{ whiteSpace: 'pre-wrap', maxHeight: '200px', overflow: 'auto', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '0.5rem', marginTop: '0.5rem' }}>{aiRaw}</pre>
+                                            </details>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
