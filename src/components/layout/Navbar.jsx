@@ -27,6 +27,11 @@ const Navbar = () => {
 
                 {currentUser ? (
                     <div className="nav-actions">
+                        {currentUser.name === 'Ashish Kamble' && (
+                            <Link to="/admin" className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8125rem' }}>
+                                Admin Panel
+                            </Link>
+                        )}
                         <div className="user-profile">
                             <User size={18} />
                             <span>{currentUser.name}</span>

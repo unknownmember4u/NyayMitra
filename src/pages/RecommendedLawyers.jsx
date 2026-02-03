@@ -124,7 +124,7 @@ const RecommendedLawyers = () => {
                                 gap: '0.4rem'
                             }}>
                                 <Zap size={14} fill="white" />
-                                Trust Score: {lawyer.trustScore || lawyer.rating}
+                                Trust Score: {lawyer.trustScore !== undefined ? lawyer.trustScore : 'Null'}
                             </div>
 
                             <div className="flex-between m-b-1" style={{ justifyContent: 'flex-start', gap: '1rem' }}>

@@ -11,12 +11,18 @@ import CreateCase from './pages/CreateCase';
 import RecommendedLawyers from './pages/RecommendedLawyers';
 import Chat from './pages/Chat';
 import CaseDetails from './pages/CaseDetails';
+import AdminDashboard from './pages/AdminDashboard';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, allowedRoles, adminOnly = false }) => {
   const { currentUser, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
   if (!currentUser) return <Navigate to="/login" />;
+
+  // Admin access check for 'Ashish Kamble'
+  if (adminOnly && currentUser.name !== 'Ashish Kamble') {
+    return <Navigate to="/dashboard" />;
+  }
 
   if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     return <Navigate to="/dashboard" />;
@@ -63,6 +69,12 @@ function App() {
               <Route path="/case/:id" element={
                 <ProtectedRoute>
                   <CaseDetails />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/admin" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } />
 
