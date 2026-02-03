@@ -26,12 +26,12 @@ const Navbar = () => {
                 </Link>
 
                 {currentUser ? (
-                    <div className="flex-between" style={{ gap: '1.5rem' }}>
-                        <div className="flex-between" style={{ gap: '0.25rem', color: 'var(--text-muted)' }}>
+                    <div className="nav-actions">
+                        <div className="user-profile">
                             <User size={18} />
-                            <span style={{ fontSize: '0.875rem' }}>{currentUser.name} ({currentUser.role})</span>
+                            <span>{currentUser.name}</span>
                         </div>
-                        <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem' }}>
+                        <button onClick={handleLogout} className="btn btn-outline nav-logout-btn">
                             <LogOut size={16} />
                             <span>Logout</span>
                         </button>

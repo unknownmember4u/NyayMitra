@@ -19,11 +19,14 @@
   padding: 0;
 }
 
+html,
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg);
   color: var(--text);
   line-height: 1.5;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 a {
@@ -154,6 +157,20 @@ button {
   z-index: 10;
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
 .navbar-content {
   display: flex;
   justify-content: space-between;
@@ -190,4 +207,105 @@ button {
 
 .m-b-2 {
   margin-bottom: 2rem;
+}
+
+/* Mobile Responsiveness Updates */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+    /* Force stack on mobile */
+    gap: 1.25rem;
+  }
+
+  .page {
+    padding: 1rem 0;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .flex-between {
+    flex-wrap: wrap;
+    /* Allow wrapping for buttons in headers */
+    gap: 1rem;
+  }
+
+  /* Specific overrides for complex grids in pages */
+  [style*="gridTemplateColumns: 1fr 350px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="gridTemplateColumns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="gridTemplateColumns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .navbar-content {
+    padding: 0 1rem;
+  }
+
+  .nav-actions {
+    gap: 0.75rem;
+  }
+
+  .user-profile span {
+    display: none;
+    /* Hide name on mobile */
+  }
+
+  .nav-logout-btn span {
+    display: none;
+    /* Hide "Logout" text */
+  }
+
+  .nav-logout-btn {
+    padding: 0.5rem !important;
+  }
+}
+
+.case-details-layout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.card h2,
+.card h3,
+.card h4 {
+  word-break: break-word;
+  /* Prevent long words from breaking layout */
+}
+
+@media (max-width: 1024px) {
+  .case-details-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .card {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-actions {
+    gap: 0.5rem;
+  }
 }

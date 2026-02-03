@@ -213,7 +213,7 @@ const CreateCase = () => {
                             </div>
                         </div>
 
-                        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div className="grid">
                             <div className="input-group">
                                 <label>Case Category</label>
                                 <select value={category} onChange={(e) => setCategory(e.target.value)}>

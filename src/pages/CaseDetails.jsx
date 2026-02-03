@@ -71,23 +71,23 @@ const CaseDetails = () => {
 
     return (
         <div className="page">
-            <div className="flex-between m-b-2">
-                <button onClick={() => navigate(-1)} className="btn btn-outline" style={{ padding: '0.5rem' }}>
+            <div className="flex-between m-b-2" style={{ gap: '1rem', alignItems: 'flex-start' }}>
+                <button onClick={() => navigate(-1)} className="btn btn-outline" style={{ padding: '0.5rem', minWidth: '40px' }}>
                     <ArrowLeft size={18} />
                 </button>
-                <div style={{ textAlign: 'right' }}>
-                    <span className={`badge badge-${caseData.urgency}`} style={{ marginRight: '0.5rem' }}>{caseData.urgency} Urgency</span>
+                <div style={{ textAlign: 'right', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                    <span className={`badge badge-${caseData.urgency}`}>{caseData.urgency} Urgency</span>
                     <span className={`badge badge-${caseData.status}`}>{caseData.status}</span>
                 </div>
             </div>
 
-            <div className="grid" style={{ gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
-                <div>
+            <div className="case-details-layout">
+                <div className="case-main-content">
                     <div className="card m-b-2">
                         <h2 className="m-b-1" style={{ textTransform: 'capitalize' }}>{caseData.category} Case Profile</h2>
-                        <p className="text-muted m-b-2">{caseData.description}</p>
+                        <p className="text-muted m-b-2" style={{ wordBreak: 'break-word' }}>{caseData.description}</p>
 
-                        <div className="flex-between" style={{ background: 'var(--bg)', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div className="flex-between case-profile-sub" style={{ background: 'var(--bg)', padding: '1rem', borderRadius: '0.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                             <div className="flex-between" style={{ gap: '0.5rem' }}>
                                 <Clock size={16} color="var(--primary)" />
                                 <span>Filed on: {caseData.createdAt?.toDate().toLocaleDateString()}</span>
@@ -176,7 +176,7 @@ const CaseDetails = () => {
                     </div>
                 </div>
 
-                <div>
+                <div className="case-sidebar">
                     <div className="card m-b-2">
                         <h4 className="m-b-1">Case Evidence ({caseData.documents?.length || 0})</h4>
                         {caseData.documents?.length > 0 ? (
