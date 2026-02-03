@@ -6,6 +6,7 @@ import {
     where,
     updateDoc,
     doc,
+    getDoc,
     serverTimestamp
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -13,7 +14,7 @@ import { detectUrgency } from "../utils/aiLogic";
 
 export const caseService = {
     // Create a new case
-    createCase: async (userId, category, description, customUrgency = null) => {
+    createCase: async (userId, category, description, customUrgency = null, documents = []) => {
         try {
             const urgency = customUrgency || detectUrgency(description);
             const caseData = {
@@ -21,6 +22,7 @@ export const caseService = {
                 category,
                 description,
                 urgency,
+                documents, // Added document support
                 lawyer: null,
                 status: "open",
                 createdAt: serverTimestamp()
@@ -61,8 +63,35 @@ export const caseService = {
             const caseRef = doc(db, "cases", caseId);
             await updateDoc(caseRef, {
                 lawyer: lawyerId,
-                status: "open"
+                status: "active" // Changed from open to active when assigned
             });
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    // Update case status (close, won, lost)
+    updateCaseStatus: async (caseId, status) => {
+        try {
+            const caseRef = doc(db, "cases", caseId);
+            await updateDoc(caseRef, { status });
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    // Update lawyer stats on win
+    updateLawyerStats: async (lawyerId, won = true) => {
+        try {
+            const lawyerRef = doc(db, "lawyers", lawyerId);
+            const lawyerDoc = await getDoc(lawyerRef);
+            if (lawyerDoc.exists()) {
+                const data = lawyerDoc.data();
+                await updateDoc(lawyerRef, {
+                    totalCases: (data.totalCases || 0) + 1,
+                    winCases: won ? (data.winCases || 0) + 1 : (data.winCases || 0)
+                });
+            }
         } catch (error) {
             throw error;
         }

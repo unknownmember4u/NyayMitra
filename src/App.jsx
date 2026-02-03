@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateCase from './pages/CreateCase';
 import RecommendedLawyers from './pages/RecommendedLawyers';
+import Chat from './pages/Chat';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { currentUser, loading } = useAuth();
@@ -49,6 +50,12 @@ function App() {
               <Route path="/recommended-lawyers" element={
                 <ProtectedRoute allowedRoles={['user']}>
                   <RecommendedLawyers />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/chat" element={
+                <ProtectedRoute>
+                  <Chat />
                 </ProtectedRoute>
               } />
 

@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { caseService } from '../services/caseService';
 import { detectUrgency } from '../utils/aiLogic';
-import { Send, AlertTriangle, Mic, Square, Loader2, Wand2, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Send, AlertTriangle, Mic, Square, Loader2, Wand2, RefreshCw, ShieldCheck, FilePlus, X, Paperclip } from 'lucide-react';
 
 const CreateCase = () => {
     const { currentUser } = useAuth();
     const [category, setCategory] = useState('civil');
     const [description, setDescription] = useState('');
+    const [documents, setDocuments] = useState([]); // Base64 or metadata
     const [aiUrgency, setAiUrgency] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -100,12 +101,31 @@ const CreateCase = () => {
         }
     };
 
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setDocuments(prev => [...prev, {
+                    name: file.name,
+                    type: file.type,
+                    data: reader.result // Base64
+                }]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeDocument = (index) => {
+        setDocuments(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const newCase = await caseService.createCase(currentUser.uid, category, description, aiUrgency);
+            const newCase = await caseService.createCase(currentUser.uid, category, description, aiUrgency, documents);
             navigate(`/recommended-lawyers?caseId=${newCase.id}&category=${category}`);
         } catch (error) {
             console.error("Error creating case:", error);
@@ -215,6 +235,79 @@ const CreateCase = () => {
                                         fontWeight: 'bold'
                                     }}
                                 />
+                            </div>
+                        </div>
+
+                        {/* Document Section */}
+                        <div className="input-group" style={{ marginTop: '1.5rem' }}>
+                            <label>Attach Documents (Evidence, ID, etc.)</label>
+                            <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
+                                <label style={{
+                                    border: '2px dashed var(--border)',
+                                    borderRadius: '0.5rem',
+                                    height: '100px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    gap: '0.5rem',
+                                    color: 'var(--text-muted)',
+                                    background: 'var(--bg)'
+                                }}>
+                                    <FilePlus size={24} />
+                                    <span style={{ fontSize: '0.75rem' }}>Add Document</span>
+                                    <input type="file" multiple onChange={handleFileChange} style={{ display: 'none' }} />
+                                </label>
+
+                                {documents.map((doc, index) => (
+                                    <div key={index} style={{
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '0.5rem',
+                                        height: '100px',
+                                        padding: '0.5rem',
+                                        position: 'relative',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'var(--white)'
+                                    }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeDocument(index)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '-8px',
+                                                right: '-8px',
+                                                background: 'var(--danger)',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: '20px',
+                                                height: '20px',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                        <Paperclip size={20} color="var(--primary)" />
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            marginTop: '0.5rem',
+                                            textAlign: 'center',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            width: '100%'
+                                        }}>
+                                            {doc.name}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 

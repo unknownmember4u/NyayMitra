@@ -2,13 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { caseService } from '../services/caseService';
-import { PlusCircle, FileText, Clock, UserCheck } from 'lucide-react';
+import { PlusCircle, FileText, Clock, UserCheck, MessageSquare, ChevronRight, Trophy } from 'lucide-react';
+import { chatService } from '../services/chatService';
+import { useNavigate } from 'react-router-dom';
 import LawyerDashboard from './LawyerDashboard';
 
 const UserDashboard = () => {
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [initiatingChat, setInitiatingChat] = useState(null);
+    const [winningCase, setWinningCase] = useState(null);
+
+    const handleWon = async (caseId, lawyerId) => {
+        if (!window.confirm("Congratulations! Click OK to confirm you won this case. This will also update your lawyer's success rate.")) return;
+        setWinningCase(caseId);
+        try {
+            await caseService.updateCaseStatus(caseId, 'won');
+            if (lawyerId) {
+                await caseService.updateLawyerStats(lawyerId, true);
+            }
+            setCases(prev => prev.map(c => c.id === caseId ? { ...c, status: 'won' } : c));
+        } catch (error) {
+            console.error("Error marking as won:", error);
+        } finally {
+            setWinningCase(null);
+        }
+    };
+
+    const handleChat = async (lawyerId, caseId) => {
+        setInitiatingChat(caseId);
+        try {
+            const chatId = await chatService.getChatId(currentUser.uid, lawyerId, caseId);
+            navigate(`/chat?chatId=${chatId}&name=My Lawyer`);
+        } catch (error) {
+            console.error("Error initiating chat:", error);
+        } finally {
+            setInitiatingChat(null);
+        }
+    };
 
     useEffect(() => {
         const fetchCases = async () => {
@@ -83,9 +116,28 @@ const UserDashboard = () => {
                                 )}
 
                                 {item.lawyer && (
-                                    <div className="flex-between" style={{ gap: '0.5rem', fontSize: '0.875rem', color: 'var(--primary)', fontWeight: 600 }}>
-                                        <UserCheck size={14} />
-                                        <span>Lawyer Assigned</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => handleChat(item.lawyer, item.id)}
+                                            className="btn btn-outline"
+                                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8125rem' }}
+                                            disabled={initiatingChat === item.id}
+                                        >
+                                            <MessageSquare size={14} />
+                                            <span>{initiatingChat === item.id ? 'Loading...' : 'Chat with Lawyer'}</span>
+                                        </button>
+
+                                        {item.status !== 'won' && item.status !== 'closed' && (
+                                            <button
+                                                onClick={() => handleWon(item.id, item.lawyer)}
+                                                className="btn btn-success"
+                                                style={{ padding: '0.3rem 0.6rem', fontSize: '0.8125rem', border: 'none' }}
+                                                disabled={winningCase === item.id}
+                                            >
+                                                <Trophy size={14} />
+                                                <span>I Won This Case!</span>
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

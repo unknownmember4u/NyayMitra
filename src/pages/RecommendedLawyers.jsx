@@ -3,9 +3,12 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { lawyerService } from '../services/lawyerService';
 import { caseService } from '../services/caseService';
 import { getRecommendedLawyers } from '../utils/aiLogic';
-import { Star, Award, MapPin, Briefcase, Zap, CheckCircle } from 'lucide-react';
+import { Star, Award, MapPin, Briefcase, Zap, CheckCircle, MessageSquare } from 'lucide-react';
+import { chatService } from '../services/chatService';
+import { useAuth } from '../context/AuthContext';
 
 const RecommendedLawyers = () => {
+    const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const caseId = searchParams.get('caseId');
     const category = searchParams.get('category');
@@ -14,6 +17,7 @@ const RecommendedLawyers = () => {
     const [lawyers, setLawyers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [assigning, setAssigning] = useState(null);
+    const [initiatingChat, setInitiatingChat] = useState(null);
 
     useEffect(() => {
         const fetchAndRecommend = async () => {
@@ -42,6 +46,19 @@ const RecommendedLawyers = () => {
             alert("Failed to assign lawyer.");
         } finally {
             setAssigning(null);
+        }
+    };
+
+    const handleChat = async (lawyerId, lawyerName) => {
+        setInitiatingChat(lawyerId);
+        try {
+            const chatId = await chatService.getChatId(currentUser.uid, lawyerId, caseId);
+            navigate(`/chat?chatId=${chatId}&name=${encodeURIComponent(lawyerName)}`);
+        } catch (error) {
+            console.error("Error initiating chat:", error);
+            alert("Failed to start chat.");
+        } finally {
+            setInitiatingChat(null);
         }
     };
 
@@ -137,14 +154,26 @@ const RecommendedLawyers = () => {
                                 <span>AI Reason: {lawyer.reason}</span>
                             </div>
 
-                            <button
-                                onClick={() => handleAssign(lawyer.id)}
-                                className="btn btn-primary"
-                                style={{ width: '100%', justifyContent: 'center' }}
-                                disabled={assigning === lawyer.id}
-                            >
-                                {assigning === lawyer.id ? 'Assigning...' : 'Assign to Case'}
-                            </button>
+                            <div className="flex-between" style={{ gap: '1rem' }}>
+                                <button
+                                    onClick={() => handleChat(lawyer.id, lawyer.name)}
+                                    className="btn btn-outline"
+                                    style={{ flex: 1, justifyContent: 'center' }}
+                                    disabled={initiatingChat === lawyer.id}
+                                >
+                                    <MessageSquare size={18} />
+                                    <span>{initiatingChat === lawyer.id ? 'Connecting...' : 'Message'}</span>
+                                </button>
+
+                                <button
+                                    onClick={() => handleAssign(lawyer.id)}
+                                    className="btn btn-primary"
+                                    style={{ flex: 1, justifyContent: 'center' }}
+                                    disabled={assigning === lawyer.id}
+                                >
+                                    {assigning === lawyer.id ? 'Assigning...' : 'Assign'}
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
