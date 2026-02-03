@@ -1,12 +1,19 @@
-# NyayMitra - AI Legal Services Platform (MVP)
+# ⚖️ NyayMitra - AI Legal Services Platform
 
-NyayMitra is a hackathon-ready MVP for an AI-powered legal services platform in India. It matches clients with the best legal professionals using a custom recommendation engine and detects case urgency using AI keyword analysis.
+**NyayMitra** is a hackathon-ready AI-powered legal assistance platform for India that helps citizens access justice faster by automating case intake, prioritization, classification, and lawyer discovery using artificial intelligence.
+
+It bridges the gap between users and verified legal professionals while enabling multilingual and inclusive access.
+
+---
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- Node.js installed on your machine.
-- A Firebase project.
+
+- Node.js installed on your machine
+- A Firebase project
+
+---
 
 ### 2. Installation
 ```bash
@@ -17,9 +24,11 @@ cd nyaymitra
 npm install
 ```
 
-### 3. Firebase Configuration
-Open `src/services/firebase.js` and replace the placeholder config with your actual Firebase project keys:
+---
 
+### 3. Firebase Configuration
+
+Open `src/services/firebase.js` and replace the placeholder config with your actual Firebase project keys:
 ```javascript
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -31,25 +40,157 @@ const firebaseConfig = {
 };
 ```
 
+---
+
 ### 4. Firebase Setup
+
 In your Firebase Console:
-1.  **Authentication**: Enable Email/Password provider.
-2.  **Firestore**: Create a database in "Test Mode" (or set rules to allow read/write for development).
+
+#### 1️⃣ Authentication
+- Enable Email/Password authentication
+
+#### 2️⃣ Firestore Database
+- Create database in Test Mode
+- Configure security rules later for production
+
+#### 3️⃣ Firebase Storage
+- Enable storage for secure legal document uploads
+
+---
 
 ### 5. Running the App
 ```bash
 npm run dev
 ```
 
+---
+
 ## 🧠 Key Features
 
-- **AI Urgency Detection**: Automatically categorizes cases as 'high' or 'medium' urgency based on descriptions (e.g., detecting keywords like 'arrest', 'violence').
-- **Lawyer Recommendation Engine**: Ranks lawyers based on a weighted score of experience, win rate, and client ratings.
-- **Role-Based Dashboards**: Tailored experiences for both clients and legal professionals.
-- **Explainable AI**: Provides reasons why specific lawyers were recommended.
-
-## 🛠️ Testing the MVP
-On the Login page, you will see a **"Seed Sample Lawyers"** button. Clicking this will automatically populate your Firestore with dummy lawyer data so you can test the recommendation matching immediately.
+### 🤖 AI-Powered Legal Assistant
+- Smart chatbot for legal queries
+- Simplifies complex legal language
+- Guides users with next steps
 
 ---
-Built with React, Vite, and Firebase.
+
+### 🚨 AI Case Priority & Urgency Detection
+- Detects emergency keywords using NLP
+- Flags critical legal cases
+- Categorizes cases as High / Medium / Normal
+
+---
+
+### 📂 Domain-wise Case Classification
+
+Automatically classifies cases into:
+- Criminal Law
+- Civil Disputes
+- Family Law
+- Property Law
+- Cyber Crime
+
+---
+
+### 📄 Secure Legal Document Upload
+- Encrypted cloud storage
+- Upload FIRs, affidavits and evidence
+- Role-based access control
+
+---
+
+### 🔐 Role-Based Authentication & Authorization
+
+Separate dashboards for:
+- **Clients** - Submit and track complaints
+- **Advocates** - Manage cases and clients
+- **Admins** - Platform oversight and verification
+
+---
+
+### 🔔 Real-Time Alerts & Notifications
+
+Live updates on:
+- Case status changes
+- Lawyer responses
+- Appointment scheduling
+
+---
+
+### 📝 Complaint Registration & Tracking
+- Digital complaint submission
+- Live progress tracking
+- **Status flow:** Submitted → Review → Assigned → Resolved
+
+---
+
+### ✅ Advocate Verification & Trust Scoring
+
+Lawyer profile verification with trust score based on:
+- Experience
+- Success rate
+- Client ratings
+
+---
+
+### 📢 AI Legal Awareness System
+
+Awareness about:
+- Citizen rights
+- Government schemes
+- New legal updates
+
+---
+
+### 🌐 Multi-Language Support (India Focused)
+- Regional language support
+- Rural-friendly accessibility
+- Digital inclusion focus
+
+---
+
+### ⚖️ Smart Lawyer Recommendation Engine
+
+AI-based matching system with ranking based on:
+- Domain expertise
+- Experience
+- Success rate
+- Ratings
+- **Explainable recommendations**
+
+---
+
+## 🛠️ Testing the MVP
+
+**Quick Start for Testing:**
+
+Click the **"Seed Sample Lawyers"** button on the login page.
+
+This will:
+- ✅ Insert dummy advocate data
+- ✅ Populate ratings and experience
+- ✅ Enable instant testing
+
+---
+
+## 🧩 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React + Vite + Tailwind CSS |
+| **Backend** | Firebase Authentication + Firestore |
+| **Storage** | Firebase Cloud Storage |
+| **AI Layer** | NLP-based classification & scoring |
+| **Hosting** | Firebase / Vercel |
+
+---
+
+## 📄 License
+
+This project is built for educational and hackathon purposes.
+
+---
+
+<div align="center">
+  <p><strong>Made with ⚖️ for accessible justice in India</strong></p>
+</div>
