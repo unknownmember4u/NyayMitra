@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { caseService } from '../services/caseService';
 import { detectUrgency } from '../utils/aiLogic';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Send, AlertTriangle, Mic, Square, Loader2, Wand2, RefreshCw, ShieldCheck, FilePlus, X, Paperclip } from 'lucide-react';
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
 
 const CreateCase = () => {
     const { currentUser } = useAuth();
@@ -27,6 +31,12 @@ const CreateCase = () => {
     const navigate = useNavigate();
 
     const startRecording = async () => {
+        // Voice is only for local demo
+        if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            alert("Voice input is possible in local environment only. Using keyboard for now!");
+            return;
+        }
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorderRef.current = new MediaRecorder(stream);
@@ -64,7 +74,7 @@ const CreateCase = () => {
         formData.append('language', voiceLang);
 
         try {
-            const response = await fetch('http://localhost:5000/transcribe', {
+            const response = await fetch('/api/transcribe', {
                 method: 'POST',
                 body: formData,
             });
@@ -89,20 +99,51 @@ const CreateCase = () => {
         }
         setAnalyzing(true);
         try {
-            const response = await fetch('http://localhost:5000/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: description }),
-            });
-            const data = await response.json();
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+            const prompt = `
+            You are a helpful legal assistant for 'NyayMitra'.
+            
+            INPUT TEXT: "${description}"
+            
+            TASK:
+            1. LANGUAGE: Identify the language (Marathi, Hindi, or English).
+            2. DESCRIPTION: Simply correct the grammar and spelling of the input text. 
+               - Keep it as a NORMAL, SIMPLE sentence or paragraph. 
+               - Do NOT write a formal legal complaint or petition.
+               - Do NOT add headers like "Subject:" or "To the Hon'ble Court".
+               - STRICTLY keep the output in the SAME language as the input.
+            3. CATEGORY: Classify into [civil, criminal, family, consumer].
+            4. URGENCY: Classify into [high, medium, low].
+        
+            JSON STRUCTURE (Return ONLY raw JSON):
+            {
+                "category": "...",
+                "description": "...",
+                "urgency": "..."
+            }
+            `;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            let text = response.text();
+
+            // Clean markdown
+            if (text.startsWith("```")) {
+                text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+            }
+
+            const data = JSON.parse(text);
+
             if (data.category) setCategory(data.category);
             if (data.description) setDescription(data.description);
             if (data.urgency) setAiUrgency(data.urgency);
-            if (data.model) setAiModel(data.model);
-            if (data.raw) setAiRaw(data.raw);
+            setAiModel("gemini-2.5-flash");
+            setAiRaw(text);
+
         } catch (err) {
             console.error("Analysis failed", err);
-            alert("AI processing failed. Please check backend and Gemini API key.");
+            alert("AI processing failed. Please check your internet connection.");
         } finally {
             setAnalyzing(false);
         }
@@ -160,8 +201,33 @@ const CreateCase = () => {
                         borderRadius: '0.75rem',
                         marginBottom: '2rem',
                         border: '2px dashed var(--border)',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        position: 'relative',
+                        opacity: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 1 : 0.4
                     }}>
+                        {/* Overlay for non-local environments */}
+                        {(window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') && (
+                            <div style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: 'rgba(255,255,255,0.7)',
+                                color: 'var(--text)',
+                                fontWeight: 'bold',
+                                zIndex: 10,
+                                borderRadius: '0.75rem',
+                                cursor: 'not-allowed'
+                            }} onClick={() => alert("Voice input is possible in local environment only.")}>
+                                <span style={{ background: 'var(--bg)', padding: '0.5rem 1rem', borderRadius: '0.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', border: '1px solid var(--border)' }}>
+                                    Voice Input (Local Only)
+                                </span>
+                            </div>
+                        )}
                         <h3 className="m-b-1">Record Your Voice</h3>
                         <p className="text-muted m-b-2">Tell us about your problem in your own language.</p>
 
@@ -370,7 +436,7 @@ const CreateCase = () => {
                                 <Mic size={16} />
                             </div>
                             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                Speak in Hindi or Marathi. <strong>Faster-Whisper</strong> will transcribe it accurately.
+                                Speak in Hindi or Marathi. (Demo Only - Requires Local Backend)
                             </p>
                         </div>
 
@@ -380,7 +446,7 @@ const CreateCase = () => {
                                 <Wand2 size={16} />
                             </div>
                             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                Click the magic wand! <strong>Gemini AI</strong> will refine your text and detect the category.
+                                Click the magic wand! <strong>Gemini AI (Flash)</strong> will refine your text and detect the category instantly.
                             </p>
                         </div>
 

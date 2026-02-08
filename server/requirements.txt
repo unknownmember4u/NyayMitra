@@ -1,6 +1,0 @@
-flask
-flask-cors
-faster-whisper
-google-generativeai
-python-dotenv
-Werkzeug

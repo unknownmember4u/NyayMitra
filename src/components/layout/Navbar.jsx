@@ -4,9 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 import { Scale, LogOut, User } from 'lucide-react';
 import flagIcon from '../../assets/icons/Flag.png';
-import lokAdalat from '../../assets/icons/lok-adalat.png';
 import satyamev from '../../assets/icons/satyamev.jpeg';
-import targetIcon from '../../assets/icons/target.jpeg';
+// Removed unused icons as per request: lok-adalat.png, target.jpeg
 
 const Navbar = () => {
     const { currentUser } = useAuth();
@@ -32,8 +31,7 @@ const Navbar = () => {
                     </div>
                 </div>
                 <div className="gov-right">
-                    <img src={targetIcon} alt="access" className="gov-small-icon" />
-                    <img src={lokAdalat} alt="lok-adalat" className="gov-small-icon" />
+                    {/* Logos removed as per request */}
                 </div>
             </div>
 

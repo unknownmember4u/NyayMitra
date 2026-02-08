@@ -1,9 +1,9 @@
 import emailjs from "@emailjs/browser";
 
-// 🔴 CONFIGURATION - Fill these from your EmailJS Dashboard
-const SERVICE_ID = "nyaymitra";
-const TEMPLATE_ID = "template_mdi908s";
-const PUBLIC_KEY = "XZUJGbzfRTOOf4WiB";
+// EmailJS configuration from environment variables
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 /**
  * Sends an email notification to the lawyer based on the EmailJS template.
